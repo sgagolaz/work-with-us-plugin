@@ -46,7 +46,7 @@ define ('WORK_WITH_US_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 
 // Import basic classes:
 // WorkWithUsPlugin
-require_once( 'WORK_WITH_US_PLUGIN_DIR'. '/classes/class.work-with-us.php');
+require_once( WORK_WITH_US_PLUGIN_DIR. '/classes/class.work-with-us-plugin.php');
 
 
 // Register for activation and deactivation hooks. As of 0.1.0 version, the method called does nothing
@@ -55,11 +55,11 @@ register_activation_hook( __FILE__, array('WorkWithUsPlugin', 'plugin_deactivati
 
 
 // Add initializing action to wordpress initialization
-add_action( 'init', array('WorkWithUsPlugin', init) );
+add_action( 'init', array('WorkWithUsPlugin', 'init') );
 
 // If admin mode is active, then import admin class and initialize
 if ( is_admin() ) {
-	require ('WORK_WITH_US_PLUGIN_DIR'.'/classes/class.work-with-us-plugin-admin.php');
+	require (WORK_WITH_US_PLUGIN_DIR.'/classes/class.work-with-us-plugin-admin.php');
 	add_action('init', array('WorkWithUsPluginAdmin', 'init'));
 }
 
