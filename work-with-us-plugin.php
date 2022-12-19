@@ -7,7 +7,7 @@ Plugin Name: Work With Us ilpost.it
 Plugin URI: https://github.com/sgagolaz/work-with-us-plugin
 Description: Job application test. This plugin inserts a call-to-action after the 4th paragraph of posts tagged as "governo".
 Version: 0.8.0
-Requires at least: 6.1
+Requires at least: 6.1.1
 Requires PHP: 8.1.12
 Author: sgagolaz
 Author URI: https://essediomino.pythonanywhere.com/

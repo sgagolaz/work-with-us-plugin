@@ -9,6 +9,8 @@ class WorkWithUsPlugin {
 	
 	const JAVASCRIPT_IDENITFIER='wwup-call_to_action';
 	
+	const HTML_OPTION_NAME='wwup_call_to_action_option';
+	
 	
 	/**
 	 * It simply returns the ACTIVATING_TAG. Such constant
@@ -32,32 +34,24 @@ class WorkWithUsPlugin {
 	}
 	
 	/**
-	 * init function. It checks if it has been called from a single
-	 * post with the activating tag and call the appending function
+	 * init function. It simply add a filter to hook the_content
+	 * to manipulate content of post (if is a one-post page)
 	 */
 	public static function init() : void {
-		// Register the js script that does the magic
-		wp_register_script(
-			self::JAVASCRIPT_IDENITFIER, 
-			WORK_WITH_US_PLUGIN_DIR."/assets/js/WwupCallToAction.class.js"
-		);
-		
-// 		if (have_post(){
-// 			the_post();
-// 			if (has_tag(get_activating_tag())) {
-// 				wp_enqueue_script(self::JAVASCRIPT_IDENITFIER);
-// 				
-// 			}
-// 		}
-		
-		add_filter( 'the_content', array('WorkWithUsPlugin','append_call_to_action'), 1);
-
-		
-				
+		add_filter( 'the_content', array('WorkWithUsPlugin','append_call_to_action'), 1);		
 	}
 	
 
-	public static function append_call_to_action(string $content) {    
+	/**
+	 * It checks if it has been called from a single
+	 * post with the activating tag and call the manipulating function
+	 * 
+	 * @param	string	content	html text to which append the call-to-action
+	 * 
+	 * @return 	string	the given argument without modifications if it has been called from a page that is not of a single post. Otherwise the given argument, with the call-to-action inserted into.
+	 * 
+	 */
+	public static function append_call_to_action(string $content) : string {    
 		if ( is_singular() && in_the_loop() && is_main_query() && has_tag(self::get_activating_tag()) ) {
 			// add the call-to-action to content
 			return self::manipulate_content($content);
@@ -65,13 +59,23 @@ class WorkWithUsPlugin {
 		return $content;
 	}
 	
+	
+	/**
+	 * retrieve default html code for call_to_action
+	 * and save it in DB using add_option
+	 */
 	public static function plugin_activation() : void {
-		# Do nothing, so far
+		// retrieve default html code for call_to_action
+		// and save it in DB using add_option
+		$default=self::load_view('default');
+		add_option(self::HTML_OPTION_NAME, $default);
 	}
 	
 	public static function plugin_deactivation() : void {
 		# Do nothing, so far
 	}
+	
+	
 	
 	/**
 	 * Echo a view file
@@ -88,8 +92,10 @@ class WorkWithUsPlugin {
 		include WORK_WITH_US_PLUGIN_DIR."/views/$page.php";
 	}
 	
+	
+	
 	/**
-	 * Just as view method, but it returns the view instead of echoing it
+	 * It behaves like view method, but it returns the view instead of echoing it
 	 * 
 	 * @param	string	page name of the php file inside views directory to be displayed.
 	 * @param	array	args	Associative array defining values of variables used iniside view's php file.
@@ -107,27 +113,23 @@ class WorkWithUsPlugin {
 		return ob_get_clean();
 	}
 	
+	
+	
 	/**
 	 * Insert the call-to-action inside the content and return it back.
 	 * 
 	 * @param	string	content	 The content of a post
+	 * @param	int		number of paragraphs after which the content is inserted
 	 * 
 	 * @return	string
 	 */
-	// // public static function manipulate_content(string $content) : string {
-	// // 	$found = preg_match_all('/'.preg_quote($search).'/', $subject, $matches, PREG_OFFSET_CAPTURE);
-	// // 	if (false !== $found && $found > $nth) {
-	// // 		return substr_replace($subject, $replace, $matches[0][$nth][1], strlen($search));
-	// // 	}
-	// // 	return $subject;
-	// // }
-	public static function manipulate_content(string $content) : string {
+	public static function manipulate_content(string $content, int $number_of_paragraphs_before = 4) : string {
 		$regex = "/(<p.*<\/p>)/i";
 		
 		// split articles by paragraphs
 		$splitted_by_paragraphs = 
 			preg_split(
-				$regex, $content, 5, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE
+				$regex, $content, $number_of_paragraphs_before + 1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE
 			);
 		
 		$length = count($splitted_by_paragraphs);
@@ -147,10 +149,10 @@ class WorkWithUsPlugin {
 	 * @return string
 	 */
 	public static function retrieve_call_to_action_html() : string {
-		$wwup_call_to_action_content= file_get_contents(WORK_WITH_US_PLUGIN_DIR.'/views/default.php');
+		$content = get_option(self::HTML_OPTION_NAME);
 		return self::load_view(
 			'call-to-action', 
-			[ 'content' => $wwup_call_to_action_content ]
+			[ 'content' => $content ]
 		);
 	}
 }
