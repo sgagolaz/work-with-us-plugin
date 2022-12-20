@@ -6,7 +6,7 @@
 Plugin Name: Work With Us ilpost.it
 Plugin URI: https://github.com/sgagolaz/work-with-us-plugin
 Description: Job application test. This plugin inserts a call-to-action after the 4th paragraph of posts tagged as "governo".
-Version: 0.9.0
+Version: 1.0.0
 Requires at least: 6.1.1
 Requires PHP: 8.1.12
 Author: sgagolaz
@@ -40,13 +40,12 @@ if ( !function_exists( 'add_action' ) ) {
 
 
 // Define basic constants
-define ('WORK_WITH_US_PLUGIN_VERSION', '0.9.0');
 define ('WORK_WITH_US_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 
 
 // Import basic classes:
 // WorkWithUsPlugin
-require_once( WORK_WITH_US_PLUGIN_DIR. '/classes/class.work-with-us-plugin.php');
+require_once WORK_WITH_US_PLUGIN_DIR. '/classes/class.work-with-us-plugin.php';
 
 
 // Register for activation and deactivation hooks. As of 0.1.0 version, the method called does nothing
@@ -54,7 +53,7 @@ register_activation_hook( __FILE__, array('WorkWithUsPlugin', 'plugin_activation
 register_activation_hook( __FILE__, array('WorkWithUsPlugin', 'plugin_deactivation' ));
 
 
-// Add initializing action to wordpress initialization
+// Add initializing action to wordpress' initialization hook
 add_action( 'init', array('WorkWithUsPlugin', 'init') );
 
 // If admin mode is active, then import admin class and initialize

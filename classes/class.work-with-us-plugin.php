@@ -3,13 +3,10 @@
 class WorkWithUsPlugin {
 	
 	const ACTIVATING_TAG='governo';
-	// to apply the plugin to ilpost.it, the following constant should set
-	// to 'singleBody'
-	const CONTENT_IDENTIFIER='singleBody';
-	
-	const JAVASCRIPT_IDENITFIER='wwup-call_to_action';
 	
 	const HTML_OPTION_NAME='wwup_call_to_action_option';
+	
+	const PARAGRAPHS_BEFORE_CTA = 4;
 	
 	
 	/**
@@ -19,19 +16,21 @@ class WorkWithUsPlugin {
 	 * 
 	 * @return	string
 	 */
-	public static function get_activating_tag() : string {
+	private static function get_activating_tag() : string {
 		return self::ACTIVATING_TAG;
 	}
+
 	
 	/**
 	 * Similarly to get_activating_tag, it is a wrapper of
-	 * CONTENT_IDENTIFIER constant for future customizations.
+	 * PARAGRAPHS_BEFORE_CTA constant for future customizations.
 	 * 
-	 * @return	string
+	 * @return	int
 	 */
-	public static function get_content_identifier() : string {
-		return CONTENT_IDENTIFIER;
+	private static function get_n_parag_before_cta() : int {
+		return self::PARAGRAPHS_BEFORE_CTA;
 	}
+	
 	
 	/**
 	 * init function. It simply add a filter to hook the_content
@@ -119,17 +118,18 @@ class WorkWithUsPlugin {
 	 * Insert the call-to-action inside the content and return it back.
 	 * 
 	 * @param	string	content	 The content of a post
-	 * @param	int		number of paragraphs after which the content is inserted
 	 * 
 	 * @return	string
 	 */
-	public static function manipulate_content(string $content, int $number_of_paragraphs_before = 4) : string {
+	private static function manipulate_content(string $content) : string {
 		$regex = "/(<p.*<\/p>)/i";
 		
 		// split articles by paragraphs
 		$splitted_by_paragraphs = 
 			preg_split(
-				$regex, $content, $number_of_paragraphs_before + 1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE
+				$regex, $content, 
+				self::get_n_parag_before_cta() + 1,
+				PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE
 			);
 		
 		$length = count($splitted_by_paragraphs);
@@ -144,15 +144,17 @@ class WorkWithUsPlugin {
 	}
 	
 	/**
-	 * Get the call-to-string wrapped in a div
+	 * Get the call-to-action html string sanitized and wrapped in a div
 	 * 
 	 * @return string
 	 */
 	public static function retrieve_call_to_action_html() : string {
 		$content = get_option(self::HTML_OPTION_NAME);
-		return self::load_view(
-			'call-to-action', 
-			[ 'content' => $content ]
+		return wp_kses_post(
+			self::load_view(
+				'call-to-action', 
+				[ 'content' => $content ]
+			)
 		);
 	}
 }
